@@ -3,20 +3,19 @@
 
 module RunFunc where
 
-import Control.Monad.IO.Class
-import Control.Monad.Trans.Either
-import System.Extras
-import System.Plugins
-import Test.QuickCheck
-import Text.Hastache
-import Text.Hastache.Context
+import Control.Exception (throwIO)
+import Control.Monad.Trans (MonadIO, liftIO)
+import System.Directory (removeFile)
+import System.IO.Error (catchIOError, isDoesNotExistError)
+import System.Plugins (LoadStatus(..), MakeStatus(..), Module, load_, make, unloadAll)
+import Test.QuickCheck (Result)
+import Text.Hastache (MuConfig(..), MuType(..), MuContext, defaultConfig, emptyEscape, hastacheFile)
+import Text.Hastache.Context (mkStrContext)
 
 import qualified Data.Text as T
-
 import qualified Data.ByteString.Lazy.Char8 as BSL
 
--- Monad representing either a failed compilation, or successful compilation/run of loaded Haskell code.
-type DohaskellFunc = EitherT String IO Result
+import DohaskellFunc (DohaskellFunc, runDohaskellFunc)
 
 type ModuleName = String
 
@@ -45,18 +44,23 @@ userDefinition1 = "my_and True True = True\nmy_and _ _ = False"
 userDefinition2 :: T.Text
 userDefinition2 = "my_and _ _ = False"
 
-debugPrintResult :: EitherT String IO Result -> IO String
-debugPrintResult res = eitherT onFailure onSuccess res
-  where
-    onFailure str = return $ "Left: " ++ str
-    onSuccess result = return $ "Right: " ++ show result
+debugPrintResult :: DohaskellFunc Result -> IO String
+debugPrintResult res =
+    runDohaskellFunc res >>=
+    \case
+        Right result -> return $ "Right: " ++ show result
+        Left  err    -> return $ "Left: "  ++ err
 
 -----
 
-runHaskell :: ModuleName -> Function -> T.Text -> DohaskellFunc
+runHaskell :: ModuleName -> Function -> T.Text -> DohaskellFunc Result
 runHaskell module_name function user_definition = do
-    liftIO $ writeModule module_name function user_definition
-    makeLoadRun module_name
+    liftIO (writeModule module_name function user_definition)
+    makeDohaskellModule module_name
+    (modul, func) <- loadDohaskellModule module_name
+    result <- runDohaskell func
+    liftIO $ unloadAll modul
+    return result
 
 writeModule :: ModuleName -> Function -> T.Text -> IO ()
 writeModule module_name function user_definition =
@@ -80,32 +84,32 @@ fillFunctionTemplate module_name function user_definition =
 
     mkListContext module_name = \"module" -> MuVariable module_name
 
--- 3 -> "arg1 arg2 arg3"
-numArgsToArgsStr :: Int -> String
-numArgsToArgsStr n = unwords $ map (\(arg,num) -> arg ++ show num) tups
-  where
-    tups :: [(String, Int)]
-    tups = zip (repeat "arg") [1..n]
+    -- 3 -> "arg1 arg2 arg3"
+    numArgsToArgsStr :: Int -> String
+    numArgsToArgsStr n = unwords $ map (\(arg,num) -> arg ++ show num) tups
+      where
+        tups :: [(String, Int)]
+        tups = zip (repeat "arg") [1..n]
 
-makeLoadRun :: ModuleName -> DohaskellFunc
-makeLoadRun module_name =
-    liftIO makeModule >>=
+makeDohaskellModule :: ModuleName -> DohaskellFunc ()
+makeDohaskellModule module_name =
+    liftIO doMakeModule >>=
     \case
-        MakeSuccess _ _ -> loadRun module_name
-        MakeFailure errs -> left $ unlines errs
+        MakeSuccess _ _ -> return ()
+        MakeFailure errs -> fail $ unlines errs
   where
-    makeModule :: IO MakeStatus
-    makeModule = make (module_name ++ ".hs") []
+    doMakeModule :: IO MakeStatus
+    doMakeModule = make (module_name ++ ".hs") []
 
-loadRun :: ModuleName -> DohaskellFunc
-loadRun module_name =
-    liftIO loadDohaskellSymbol >>=
+loadDohaskellModule :: ModuleName -> DohaskellFunc (Module, IO Result)
+loadDohaskellModule module_name =
+    liftIO doLoadDohaskellModule >>=
     \case
-        LoadSuccess _ func -> liftIO func >>= right
-        LoadFailure errs -> left $ unlines errs
+        LoadSuccess modul func -> return (modul, func)
+        LoadFailure errs -> fail $ unlines errs
   where
-    loadDohaskellSymbol :: IO (LoadStatus (IO Result))
-    loadDohaskellSymbol = load_ (module_name ++ ".o") [] "dohaskell"
+    doLoadDohaskellModule :: IO (LoadStatus (IO Result))
+    doLoadDohaskellModule = load_ (module_name ++ ".o") [] "dohaskell"
 
-run :: IO Result -> DohaskellFunc
-run func = liftIO func >>= right
+runDohaskell :: IO Result -> DohaskellFunc Result
+runDohaskell func = liftIO func >>= return
