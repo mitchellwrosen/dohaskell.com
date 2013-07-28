@@ -1,0 +1,15 @@
+module {{module_name}} where
+
+import Test.QuickCheck (Result, quickCheckResult)
+
+{{#modules}}
+import {{module}}
+{{/modules}}
+
+{{user_name}} :: {{type_signature}}
+{{user_definition}}
+
+prop {{args}} = {{real_name}} {{args}} == {{user_name}} {{args}}
+
+dohaskell :: IO Result
+dohaskell = quickCheckResult prop
