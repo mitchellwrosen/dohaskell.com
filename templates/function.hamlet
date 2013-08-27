@@ -1,0 +1,11 @@
+<h1>_{MsgHello}
+
+<form method=post action=@{FunctionR module_name} enctype=#{formEnctype}}>
+   ^{formWidget}
+   <input type="hidden" name=#{func_id}>
+   <input type="submit" value="Capitalize">
+
+You are on #{module_name}
+
+<p>widget:
+^{functionWidget module_name}

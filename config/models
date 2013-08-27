@@ -16,6 +16,6 @@ Function
     typeSignature Text
     documentation Text
     numArgs Int
-    modules [Text]
-
- -- By default this file is used in Model.hs (which is imported by Foundation.hs)
+    module Text
+    FunctionName module realName
+    deriving Show

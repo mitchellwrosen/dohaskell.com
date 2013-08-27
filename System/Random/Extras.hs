@@ -2,8 +2,10 @@ module System.Random.Extras
     ( randomModuleName
     ) where
 
+import Prelude
+
 import Control.Applicative ((<$>))
-import Control.Monad.Random (getRandomR, getRandomRs)
+import Control.Monad.Random (getRandomRs)
 import Data.Char (isAlpha)
 
 randomModuleName :: Int -> IO [Char]

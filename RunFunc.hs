@@ -3,21 +3,22 @@
 
 module RunFunc where
 
+import Prelude
+
 import Control.Exception (throwIO)
 import Control.Monad.Trans (MonadIO, liftIO)
 import System.Directory (removeFile)
 import System.IO.Error (catchIOError, isDoesNotExistError)
 import System.Plugins (LoadStatus(..), MakeStatus(..), Module, load_, make, unloadAll)
 import Test.QuickCheck (Result)
-import Text.Hastache (MuConfig(..), MuType(..), MuContext, defaultConfig, emptyEscape, hastacheFile)
+import Text.Hastache (MuConfig(..), MuType(..), defaultConfig, emptyEscape, hastacheFile)
 import Text.Hastache.Context (mkStrContext)
 
 import qualified Data.Text as T
 import qualified Data.ByteString.Lazy.Char8 as BSL
 
 import DohaskellFunc (DohaskellFunc, runDohaskellFunc)
-
-type ModuleName = String
+import Types (ModuleName)
 
 data Function = Function
     { functionRealName :: T.Text
@@ -55,17 +56,25 @@ debugPrintResult res =
 
 runHaskell :: ModuleName -> Function -> T.Text -> DohaskellFunc Result
 runHaskell module_name function user_definition = do
-    liftIO (writeModule module_name function user_definition)
-    makeDohaskellModule module_name
-    (modul, func) <- loadDohaskellModule module_name
-    result <- runDohaskell func
-    liftIO $ unloadAll modul
-    return result
+    (modul, func) <- setup
+    liftIO $ teardown modul
+    liftIO func
+  where
+    setup :: DohaskellFunc (Module, IO Result)
+    setup = do
+        liftIO $ writeModule module_name function user_definition
+        makeDohaskellModule module_name
+        loadDohaskellModule module_name
+
+    teardown :: Module -> IO ()
+    teardown modul =
+        unloadAll modul >>
+        cleanupModule module_name
 
 writeModule :: ModuleName -> Function -> T.Text -> IO ()
 writeModule module_name function user_definition =
     fillFunctionTemplate module_name function user_definition >>=
-    BSL.writeFile (module_name ++ ".hs")
+    BSL.writeFile (T.unpack $ hsFile module_name)
 
 fillFunctionTemplate :: MonadIO m => ModuleName -> Function -> T.Text -> m BSL.ByteString
 fillFunctionTemplate module_name function user_definition =
@@ -99,7 +108,7 @@ makeDohaskellModule module_name =
         MakeFailure errs -> fail $ unlines errs
   where
     doMakeModule :: IO MakeStatus
-    doMakeModule = make (module_name ++ ".hs") []
+    doMakeModule = make (T.unpack $ hsFile module_name) []
 
 loadDohaskellModule :: ModuleName -> DohaskellFunc (Module, IO Result)
 loadDohaskellModule module_name =
@@ -109,7 +118,27 @@ loadDohaskellModule module_name =
         LoadFailure errs -> fail $ unlines errs
   where
     doLoadDohaskellModule :: IO (LoadStatus (IO Result))
-    doLoadDohaskellModule = load_ (module_name ++ ".o") [] "dohaskell"
+    doLoadDohaskellModule = load_ (T.unpack $ module_name `T.append` ".o") [] "dohaskell"
 
-runDohaskell :: IO Result -> DohaskellFunc Result
-runDohaskell func = liftIO func >>= return
+cleanupModule :: ModuleName -> IO ()
+cleanupModule module_name = do
+    removeFileIfExists $ T.unpack $ hsFile module_name
+    removeFileIfExists $ T.unpack $ oFile  module_name
+    removeFileIfExists $ T.unpack $ hiFile module_name
+
+removeFileIfExists :: FilePath -> IO ()
+removeFileIfExists file_path = removeFile file_path `catchIOError` handler
+  where
+    handler :: IOError -> IO ()
+    handler err
+        | isDoesNotExistError err = return ()
+        | otherwise = throwIO err
+
+hsFile :: T.Text -> T.Text
+hsFile = (`T.append` ".hs")
+
+oFile :: T.Text -> T.Text
+oFile = (`T.append` ".hs")
+
+hiFile :: T.Text -> T.Text
+hiFile = (`T.append` ".hi")
