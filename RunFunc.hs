@@ -1,5 +1,4 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE LambdaCase        #-}
 
 module RunFunc where
 
@@ -47,8 +46,8 @@ userDefinition2 = "my_and _ _ = False"
 
 debugPrintResult :: DohaskellFunc Result -> IO String
 debugPrintResult res =
-    runDohaskellFunc res >>=
-    \case
+    runDohaskellFunc res >>= \val ->
+    case val of
         Right result -> return $ "Right: " ++ show result
         Left  err    -> return $ "Left: "  ++ err
 
@@ -84,11 +83,11 @@ fillFunctionTemplate module_name function user_definition =
     config = defaultConfig { muEscapeFunc = emptyEscape }
 
     context "args"            = MuVariable $ numArgsToArgsStr $ functionNumArgs function
-    context "module_name"     = MuVariable $ module_name
+    context "module_name"     = MuVariable   module_name
     context "modules"         = MuList     $ map (mkStrContext . mkListContext) (functionModules function)
     context "real_name"       = MuVariable $ functionRealName function
     context "type_signature"  = MuVariable $ functionTypeSignature function
-    context "user_definition" = MuVariable $ user_definition
+    context "user_definition" = MuVariable   user_definition
     context "user_name"       = MuVariable $ functionUserName function
 
     mkListContext module_name = \"module" -> MuVariable module_name
@@ -102,8 +101,8 @@ fillFunctionTemplate module_name function user_definition =
 
 makeDohaskellModule :: ModuleName -> DohaskellFunc ()
 makeDohaskellModule module_name =
-    liftIO doMakeModule >>=
-    \case
+    liftIO doMakeModule >>= \val ->
+    case val of
         MakeSuccess _ _ -> return ()
         MakeFailure errs -> fail $ unlines errs
   where
@@ -112,8 +111,8 @@ makeDohaskellModule module_name =
 
 loadDohaskellModule :: ModuleName -> DohaskellFunc (Module, IO Result)
 loadDohaskellModule module_name =
-    liftIO doLoadDohaskellModule >>=
-    \case
+    liftIO doLoadDohaskellModule >>= \val ->
+    case val of
         LoadSuccess modul func -> return (modul, func)
         LoadFailure errs -> fail $ unlines errs
   where
