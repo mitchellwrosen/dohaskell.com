@@ -62,9 +62,9 @@ import Types (ModuleName)
 runHaskell :: Function -> Text -> DohaskellFunc Result
 runHaskell function user_definition = do
     random_module_name <- liftIO $ randomModuleName 20
-    (random_module, result) <- setup random_module_name
+    (random_module, func) <- setup random_module_name
     liftIO (teardown random_module)
-    liftIO result
+    liftIO func
   where
     setup :: ModuleName -> DohaskellFunc (Module, IO Result)
     setup random_module_name = do
@@ -115,7 +115,7 @@ loadDohaskellModule module_name =
         LoadFailure errs -> fail $ unlines errs
   where
     doLoadDohaskellModule :: IO (LoadStatus (IO Result))
-    doLoadDohaskellModule = load_ (T.unpack $ module_name <> ".o") [] "dohaskell"
+    doLoadDohaskellModule = load_ (T.unpack $ oFile module_name) [] "dohaskell"
 
 cleanupModule :: ModuleName -> IO ()
 cleanupModule module_name =
@@ -130,11 +130,11 @@ removeFileIfExists file_path = removeFile file_path `catchIOError` handler
         | isDoesNotExistError err = return ()
         | otherwise = throwIO err
 
-hsFile :: T.Text -> T.Text
-hsFile basename = basename <> ".hs"
+hsFile :: Text -> Text
+hsFile = (<> ".hs")
 
-oFile :: T.Text -> T.Text
-oFile basename = basename <> ".hs"
+oFile :: Text -> Text
+oFile = (<> ".o")
 
-hiFile :: T.Text -> T.Text
-hiFile basename = basename <> ".hi"
+hiFile :: Text -> Text
+hiFile = (<> ".hi")

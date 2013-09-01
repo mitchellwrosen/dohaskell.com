@@ -12,9 +12,12 @@ main = void $ runTestTT tests
 
 tests :: Test
 tests = TestList
-            [ "testRunHaskell" ~: testRunHaskell ]
+            [ "testRunHaskellSuccess" ~: testRunHaskellSuccess
+            , "testRunHaskellFailure" ~: testRunHaskellFailure
+            ]
 
-testRunHaskell = TestCase $ do
+testRunHaskellSuccess :: Test
+testRunHaskellSuccess = TestCase $ do
     let func = Function { functionRealName      = "(&&)"
         , functionUserName      = "my_and"
         , functionTypes         = ["Bool", "Bool", "Bool"]
@@ -27,3 +30,18 @@ testRunHaskell = TestCase $ do
     case result of
         Left err -> assertFailure err
         Right _  -> return ()
+
+testRunHaskellFailure :: Test
+testRunHaskellFailure = TestCase $ do
+    let func = Function { functionRealName      = "(&&)"
+        , functionUserName      = "my_and"
+        , functionTypes         = ["Bool", "Bool", "Bool"]
+        , functionDocumentation = ""
+        , functionModule        = "Prelude"
+        }
+    let userDefinition = "my_and _ _ = True"
+
+    result <- runDohaskellFunc $ runHaskell func userDefinition
+    case result of
+        Left _ -> return ()
+        Right _ -> assertFailure ""

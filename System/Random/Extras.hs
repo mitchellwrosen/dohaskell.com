@@ -2,22 +2,22 @@ module System.Random.Extras
     ( randomModuleName
     ) where
 
-import Prelude hiding (take)
-
 import Control.Applicative ((<$>))
 import Control.Monad.Random (getRandomRs)
 import Data.Char (isAlpha)
 import Data.Monoid ((<>))
-import Data.Text (Text, pack, take)
+import Data.Text (Text, pack)
 
 randomModuleName :: Int -> IO Text
-randomModuleName n = do
-    x  <- take 1     <$> randomCapitalLetters
-    xs <- take (n-1) <$> randomLetters
-    return $ x <> xs
+randomModuleName n
+    | n <= 1 = fail "randomModuleName requires n > 1"
+    | otherwise = do
+        x  <- take 1     <$> randomCapitalLetters
+        xs <- take (n-1) <$> randomLetters
+        return . pack $ x <> xs
 
-randomCapitalLetters :: IO Text
-randomCapitalLetters = pack <$> getRandomRs ('A', 'Z')
+randomCapitalLetters :: IO String
+randomCapitalLetters = getRandomRs ('A', 'Z')
 
-randomLetters :: IO Text
-randomLetters = pack . filter isAlpha <$> getRandomRs ('A', 'z')
+randomLetters :: IO String
+randomLetters = filter isAlpha <$> getRandomRs ('A', 'z')
