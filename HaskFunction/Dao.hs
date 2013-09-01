@@ -4,6 +4,7 @@ module HaskFunction.Dao
     , getAllFunctionsFromModule
     , getAllFunctionNamesFromModule
     , getRandomFunctionFromModule
+    , insertFunction
     ) where
 
 import Import
@@ -30,3 +31,6 @@ getRandomFunctionFromModule :: ModuleName -> Handler (Maybe HaskFunction)
 getRandomFunctionFromModule module_name =
     getAllFunctionsFromModule module_name >>=
     liftIO . randomElem
+
+insertFunction :: HaskFunction -> Handler (Key HaskFunction)
+insertFunction function = runDB $ insert function

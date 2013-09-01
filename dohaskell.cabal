@@ -74,6 +74,7 @@ library
                  , plugins                       >= 1.5
                  , QuickCheck                    >= 2.6
                  , random                        >= 1.0
+                 , safe                          >= 0.3
                  , shakespeare-css               >= 1.0        && < 1.1
                  , shakespeare-js                >= 1.0.2      && < 1.2
                  , shakespeare-text              >= 1.0        && < 1.1

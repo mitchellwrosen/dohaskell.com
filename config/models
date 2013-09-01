@@ -17,7 +17,7 @@ HaskFunction
     types [Text]
     documentation Text
     UniqueHaskFunction module name
-    deriving Show
+    deriving Read Show
 
 HaskModule
    name Text

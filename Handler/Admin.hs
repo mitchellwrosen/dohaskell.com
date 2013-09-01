@@ -2,15 +2,29 @@ module Handler.Admin where
 
 import Import
 
-import Data.Text (split)
+import Data.Text (unpack)
+import Safe (readMay)
+
+import HaskFunction.Dao (insertFunction)
 
 getAdminR :: Handler Html
 getAdminR = do
     (addFunctionFormWidget, addFunctionFormEnctype) <- generateFormPost addFunctionForm
 
+    let sampleFunction = HaskFunction { 
+          haskFunctionModule        = "Prelude"
+        , haskFunctionName          = "fmap"
+        , haskFunctionUserName      = "my_fmap"
+        , haskFunctionTypes         = ["(a -> b)", "f a", "f b"]
+        , haskFunctionDocumentation = "...documentation..."
+        }
+
     defaultLayout
         [whamlet|
             <h3>Add Function
+
+            <div>Sample function:
+            <div>#{show sampleFunction}
             <form method=post action=@{AddFunctionR} enctype=#{addFunctionFormEnctype}>
                 ^{addFunctionFormWidget}
                 <input type=submit value="Submit">
@@ -22,8 +36,14 @@ getAdminR = do
 postAddFunctionR :: Handler Html
 postAddFunctionR = do
     ((formResult, _), _) <- runFormPost addFunctionForm
-    setMessage $ toHtml $ show formResult
-    redirect AdminR
+    case formResult of
+        FormSuccess function -> do
+            key <- insertFunction function
+            setMessageRedirect (toHtml $ show key) AdminR
+        _ -> setMessageRedirect (toHtml $ show formResult) AdminR
+  where
+    setMessageRedirect :: RedirectUrl App url => Html -> url -> Handler Html
+    setMessageRedirect msg resource = setMessage msg >> redirect resource
 
 postListModulesR :: Handler Html
 postListModulesR = do
@@ -31,16 +51,11 @@ postListModulesR = do
     redirect AdminR
 
 addFunctionForm :: Form HaskFunction
-addFunctionForm = renderDivs $ HaskFunction
-    <$> areq textField "Module"                  Nothing
-    <*> areq textField "Name"                    Nothing
-    <*> areq textField "User name"               Nothing
-    <*> areq listField "Types (comma delimited)" Nothing
-    <*> areq textField "Documentation"           Nothing
+addFunctionForm = renderDivs $ areq haskFunctionField "Function (as 'show')" Nothing
 
-listField :: (Monad m, RenderMessage (HandlerSite m) FormMessage) => Field m [Text]
-listField = Field
-    { fieldParse = parseHelper $ Right . splitOnComma
+readField :: (Monad m, RenderMessage (HandlerSite m) FormMessage, Read a, Show a) => Field m a
+readField = Field 
+    { fieldParse = parseHelper $ maybe (Left MsgValueRequired) Right . readMay . unpack
     , fieldView = \theId name attrs val isReq ->
         [whamlet|
             $newline never
@@ -48,6 +63,6 @@ listField = Field
         |]
     , fieldEnctype = UrlEncoded
     }
-  where
-    splitOnComma :: Text -> [Text]
-    splitOnComma = split (== ',')
+
+haskFunctionField :: (Monad m, RenderMessage (HandlerSite m) FormMessage) => Field m HaskFunction
+haskFunctionField = readField
