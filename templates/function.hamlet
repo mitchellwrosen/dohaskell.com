@@ -2,5 +2,7 @@
 <h3> #{functionName}
 <br>
 <br>
-<h3> Type your answer!
-
+<h3> Give it a try!
+<form method=post enctype=#{enctype}>
+    <textArea id=codeArea>-- Insert code here:
+    <input type=submit value="Test my Code">
