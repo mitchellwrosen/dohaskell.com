@@ -7,8 +7,6 @@ import Settings.StaticFiles
 data DoFunction = DoFunction String
 data Module = Module String [DoFunction]
 
-import Data.Text (toUpper)
-
 getHomeR :: Handler Html
 getHomeR = do
     defaultLayout $ do
@@ -23,6 +21,3 @@ getHomeR = do
 
 postHomeR :: Handler Html
 postHomeR = getHomeR
-
-handleSubmission :: Text -> IO (Maybe Textarea)
-handleSubmission = return . Just . Textarea . toUpper
