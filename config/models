@@ -13,9 +13,7 @@ Email
 Function
     realName Text
     userName Text
-    typeSignature Text
+    types [Text]
     documentation Text
-    numArgs Int
     module Text
-    FunctionName module realName
     deriving Show

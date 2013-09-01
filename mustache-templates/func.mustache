@@ -1,10 +1,9 @@
 module {{module_name}} where
 
+import {{module}}
+
 import Test.QuickCheck (Result, quickCheckResult)
 
-{{#modules}}
-import {{module}}
-{{/modules}}
 
 {{user_name}} :: {{type_signature}}
 {{user_definition}}

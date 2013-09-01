@@ -16,6 +16,7 @@ library
                      DohaskellFunc
                      Import
                      Foundation
+                     FunctionUtils
                      Handler.Home
                      Handler.Function
                      Model

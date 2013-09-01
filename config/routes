@@ -4,5 +4,5 @@
 /favicon.ico FaviconR GET
 /robots.txt RobotsR GET
 
-/                     HomeR     GET POST
-/function/#ModuleName FunctionR GET POST
+/                                   HomeR     GET POST
+/function/#ModuleName/#FunctionName FunctionR GET POST
