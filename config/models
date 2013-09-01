@@ -11,9 +11,10 @@ Email
     UniqueEmail email
 
 Function
-    realName Text
+    module Text
+    name Text
     userName Text
     types [Text]
     documentation Text
-    module Text
+    UniqueFunction module name
     deriving Show
