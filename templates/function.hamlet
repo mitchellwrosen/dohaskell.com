@@ -4,5 +4,5 @@
 <br>
 <h3> Give it a try!
 <form method=post enctype=#{enctype}>
-    <textArea id=codeArea>-- Insert code here:
+    ^{codeAreaWidget}
     <input type=submit value="Test my Code">

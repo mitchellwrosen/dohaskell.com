@@ -2,11 +2,12 @@ module Handler.Function where
 
 import Import
 
-codeForm :: Form Article
-codeForm = renderDivs $ areq textArea "codeArea" (Just "-- Insert code here:")
+codeForm :: Form Textarea
+codeForm = renderDivs $ areq textareaField "" (Just $ Textarea "-- Insert code here:")
 
 getFunctionR :: ModuleName -> FunctionName -> Handler Html
 getFunctionR moduleName functionName = do
+    (codeAreaWidget, enctype) <- generateFormPost codeForm
     defaultLayout $ do
         addScriptRemote "http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"
         addScript $ StaticR codemirror_lib_codemirror_js
