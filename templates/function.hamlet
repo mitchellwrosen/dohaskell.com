@@ -1,5 +1,8 @@
-<div .#{fnameClass}>#{moduleName} (#{functionName})
-
-<form method=post action=@{FunctionR moduleName functionName} enctype=#{formEnctype}}>
-   ^{formWidget}
-   <input type="submit" value="Submit">
+<h1> #{moduleName}
+<h3> #{functionName}
+<br>
+<br>
+<h3> Give it a try!
+<form method=post enctype=#{enctype}>
+    ^{codeAreaWidget}
+    <input type=submit value="Test my Code">

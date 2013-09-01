@@ -13,12 +13,16 @@ Flag library-only
 
 library
     exposed-modules: Application
+                     Control.Applicative.Extras
                      DohaskellFunc
-                     Import
                      Foundation
-                     FunctionUtils
                      Handler.Home
                      Handler.Function
+                     Handler.Admin
+                     HaskFunction.Dao
+                     HaskFunction.Utils
+                     HaskModule.Dao
+                     Import
                      Model
                      RunFunc
                      Settings
@@ -51,6 +55,7 @@ library
                  , base                          >= 4          && < 5
                  , bytestring                    >= 0.9        && < 0.11
                  , conduit                       >= 1.0
+                 , containers                    >= 0.4
                  , data-default
                  , directory                     >= 1.1        && < 1.3
                  , either                        >= 0.1

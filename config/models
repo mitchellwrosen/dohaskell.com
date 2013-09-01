@@ -10,10 +10,14 @@ Email
     verkey Text Maybe
     UniqueEmail email
 
-Function
-    realName Text
+HaskFunction
+    module Text
+    name Text
     userName Text
     types [Text]
     documentation Text
-    module Text
+    UniqueHaskFunction module name
     deriving Show
+
+HaskModule
+   name Text

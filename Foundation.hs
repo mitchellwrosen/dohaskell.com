@@ -1,37 +1,40 @@
 module Foundation where
 
 import Prelude
+
+import Control.Applicative ((<$>))
+import Database.Persist.Sql (SqlPersistT)
+import Model
+import Network.HTTP.Conduit (Manager)
+import Settings (widgetFile, Extra (..))
+import Settings.Development (development)
+import Settings.StaticFiles
+import System.Log.FastLogger (Logger)
+import Text.Hamlet (hamletFile)
+import Text.Jasmine (minifym)
+import Types
 import Yesod
-import Yesod.Static
 import Yesod.Auth
 import Yesod.Auth.BrowserId
 import Yesod.Auth.GoogleEmail
 import Yesod.Default.Config
 import Yesod.Default.Util (addStaticContentExternal)
-import Network.HTTP.Conduit (Manager)
+import Yesod.Static
+
 import qualified Settings
-import Settings.Development (development)
 import qualified Database.Persist
-import Database.Persist.Sql (SqlPersistT)
-import Settings.StaticFiles
-import Settings (widgetFile, Extra (..))
-import Model
-import Types
-import Text.Jasmine (minifym)
-import Text.Hamlet (hamletFile)
-import System.Log.FastLogger (Logger)
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
 -- starts running, such as database connections. Every handler will have
 -- access to the data present here.
 data App = App
-    { settings :: AppConfig DefaultEnv Extra
-    , getStatic :: Static -- ^ Settings for static file serving.
-    , connPool :: Database.Persist.PersistConfigPool Settings.PersistConf -- ^ Database connection pool.
-    , httpManager :: Manager
+    { settings      :: AppConfig DefaultEnv Extra
+    , getStatic     :: Static -- ^ Settings for static file serving.
+    , connPool      :: Database.Persist.PersistConfigPool Settings.PersistConf -- ^ Database connection pool.
+    , httpManager   :: Manager
     , persistConfig :: Settings.PersistConf
-    , appLogger :: Logger
+    , appLogger     :: Logger
     }
 
 -- Set up i18n messages. See the message folder.
@@ -124,6 +127,7 @@ instance Yesod App where
 instance YesodPersist App where
     type YesodPersistBackend App = SqlPersistT
     runDB = defaultRunDB persistConfig connPool
+
 instance YesodPersistRunner App where
     getDBRunner = defaultGetDBRunner connPool
 
@@ -140,7 +144,7 @@ instance YesodAuth App where
         case x of
             Just (Entity uid _) -> return $ Just uid
             Nothing -> do
-                fmap Just $ insert $ User (credsIdent creds) Nothing
+                Just <$> (insert $ User (credsIdent creds) Nothing)
 
     -- You can add other plugins like BrowserID, email or OAuth here
     authPlugins _ = [authBrowserId def, authGoogleEmail]
@@ -154,7 +158,7 @@ instance RenderMessage App FormMessage where
 
 -- | Get the 'Extra' value, used to hold data from the settings.yml file.
 getExtra :: Handler Extra
-getExtra = fmap (appExtra . settings) getYesod
+getExtra = appExtra . settings <$> getYesod
 
 -- Note: previous versions of the scaffolding included a deliver function to
 -- send emails. Unfortunately, there are too many different options for us to

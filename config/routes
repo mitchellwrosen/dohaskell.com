@@ -4,5 +4,8 @@
 /favicon.ico FaviconR GET
 /robots.txt RobotsR GET
 
-/                                   HomeR     GET POST
+/ HomeR GET POST
 /function/#ModuleName/#FunctionName FunctionR GET POST
+/admin AdminR GET
+/admin/addfunction AddFunctionR POST
+/admin/listmodules ListModulesR POST

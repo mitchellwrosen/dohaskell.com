@@ -1,0 +1,4 @@
+var codeMirror = CodeMirror.fromTextArea($('textarea')[0], {
+    mode: "haskell",
+    lineNumbers: true,
+});
