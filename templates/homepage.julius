@@ -1,1 +1,4 @@
-document.getElementById(#{toJSON aDomId}).innerHTML = "This text was added by the Javascript part of the homepage widget.";
+$('.level3 .button').click(function() {
+    $(this).find('div').toggleClass('toggled');
+    $(this).parent().find('ul').toggleClass('hidden');
+});

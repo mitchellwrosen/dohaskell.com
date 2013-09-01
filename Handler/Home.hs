@@ -2,6 +2,10 @@
 module Handler.Home where
 
 import Import
+import Settings.StaticFiles
+
+data DoFunction = DoFunction String
+data Module = Module String [DoFunction]
 
 -- This is a handler function for the GET request method on the HomeR
 -- resource pattern. All of your resource patterns are defined in
@@ -12,12 +16,14 @@ import Import
 -- inclined, or create a single monolithic file.
 getHomeR :: Handler Html
 getHomeR = do
-    (formWidget, formEnctype) <- generateFormPost sampleForm
-    let submission = Nothing :: Maybe (FileInfo, Text)
-        handlerName = "getHomeR" :: Text
     defaultLayout $ do
-        aDomId <- newIdent
-        setTitle "Welcome To Yesod!"
+        let modules = [ Module "Prelude" [DoFunction "(&&)"]
+                      , Module "Data.List" [DoFunction "(||)"]
+                      , Module "Data.Maybe" [DoFunction "(==)"]
+                      ]
+        -- TODO(chebert): where to load, where to load?
+        addScriptRemote "http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"
+        setTitle "Welcome To DoHaskell!"
         $(widgetFile "homepage")
 
 postHomeR :: Handler Html
@@ -31,7 +37,8 @@ postHomeR = do
     defaultLayout $ do
         aDomId <- newIdent
         setTitle "Welcome To Yesod!"
-        $(widgetFile "homepage")
+        [whamlet|
+        |]
 
 sampleForm :: Form (FileInfo, Text)
 sampleForm = renderDivs $ (,)

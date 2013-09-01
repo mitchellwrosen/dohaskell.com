@@ -1,5 +1,4 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE LambdaCase        #-}
 
 module RunFunc where
 
@@ -46,8 +45,8 @@ userDefinition2 = "my_and _ _ = False"
 
 debugPrintResult :: DohaskellFunc Result -> IO String
 debugPrintResult res =
-    runDohaskellFunc res >>=
-    \case
+    runDohaskellFunc res >>= val -> val ->
+   case val of val of
         Right result -> return $ "Right: " ++ show result
         Left  err    -> return $ "Left: "  ++ err
 
@@ -93,8 +92,8 @@ fillFunctionTemplate module_name function user_definition =
 
 makeDohaskellModule :: ModuleName -> DohaskellFunc ()
 makeDohaskellModule module_name =
-    liftIO doMakeModule >>=
-    \case
+    liftIO doMakeModule >>= val ->
+    case val of
         MakeSuccess _ _ -> return ()
         MakeFailure errs -> fail $ unlines errs
   where
@@ -103,8 +102,8 @@ makeDohaskellModule module_name =
 
 loadDohaskellModule :: ModuleName -> DohaskellFunc (Module, IO Result)
 loadDohaskellModule module_name =
-    liftIO doLoadDohaskellModule >>=
-    \case
+    liftIO doLoadDohaskellModule >>= val ->
+    case val of
         LoadSuccess modul func -> return (modul, func)
         LoadFailure errs -> fail $ unlines errs
   where
