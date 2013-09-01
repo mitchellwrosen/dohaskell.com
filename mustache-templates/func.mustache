@@ -8,7 +8,7 @@ import Test.QuickCheck (Result, quickCheckResult)
 {{user_name}} :: {{type_signature}}
 {{user_definition}}
 
-prop {{args}} = {{real_name}} {{args}} == {{user_name}} {{args}}
+prop {{args}} = {{name}} {{args}} == {{user_name}} {{args}}
 
 dohaskell :: IO Result
 dohaskell = quickCheckResult prop

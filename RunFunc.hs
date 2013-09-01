@@ -34,21 +34,23 @@ import Types (ModuleName)
     {-, functionModules :: [Text]-}
     {-}-}
 
-{-sampleFunc :: Function-}
-{-sampleFunc = Function-}
-    {-{ functionRealName = "(&&)"-}
-    {-, functionUserName = "my_and"-}
-    {-, functionTypeSignature = "Bool -> Bool -> Bool"-}
-    {-, functionDocumentation = "Boolean and"-}
-    {-, functionNumArgs = 2-}
-    {-, functionModules = ["Prelude"]-}
-    {-}-}
+sampleFunc :: Function
+sampleFunc = Function
+    { functionName = "(&&)"
+    , functionUserName = "my_and"
+    , functionTypes = ["Bool", "Bool", "Bool"]
+    , functionDocumentation = "Boolean and"
+    , functionModule = "Prelude"
+    }
 
-{-userDefinition1 :: Text-}
-{-userDefinition1 = "my_and True True = True\nmy_and _ _ = False"-}
+userDefinition1 :: Text
+userDefinition1 = "my_and True True = True\nmy_and _ _ = False"
 
-{-userDefinition2 :: Text-}
-{-userDefinition2 = "my_and _ _ = False"-}
+userDefinition2 :: Text
+userDefinition2 = "my_and _ _ = False"
+
+userDefinition3 :: Text
+userDefinition3 = "foo"
 
 {-debugPrintResult :: DohaskellFunc Result -> IO String-}
 {-debugPrintResult res =-}
@@ -92,7 +94,7 @@ fillFunctionTemplate module_name function user_definition =
     context "args"            = MuVariable $ argsStr function
     context "module_name"     = MuVariable   module_name
     context "module"          = MuVariable $ functionModule function
-    context "real_name"       = MuVariable $ functionRealName function
+    context "name"            = MuVariable $ functionName function
     context "type_signature"  = MuVariable $ typeSignature function
     context "user_definition" = MuVariable   user_definition
     context "user_name"       = MuVariable $ functionUserName function

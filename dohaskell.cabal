@@ -13,6 +13,7 @@ Flag library-only
 
 library
     exposed-modules: Application
+                     Dao.Function
                      DohaskellFunc
                      Import
                      Foundation

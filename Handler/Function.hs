@@ -74,10 +74,3 @@ sampleForm = renderDivs $ areq textareaField "Enter some text" Nothing
         {-<p>key = #{show key}-}
         {-<p>func = #{show func}-}
     {-|]-}
-
-{-getRandomFunctionFromModule :: ModuleName -> IO [Entity Function]-}
-{-getRandomFunctionFromModule module_name = do-}
-    {-funcs <- runDB $ selectList [FunctionModule ==. module_name] []-}
-    {-if null funcs-}
-        {-then return Nothing-}
-        {-else return $ Just $ (funcs !!) <$> liftIO (randomRIO (0, length funcs - 1))-}
