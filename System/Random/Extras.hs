@@ -1,11 +1,13 @@
 module System.Random.Extras
-    ( randomModuleName
+    ( randomElem
+    , randomModuleName
     ) where
 
 import Prelude
 
 import Control.Applicative ((<$>))
-import Control.Monad.Random (getRandomRs)
+import Control.Monad.Random (getRandomRs, randomRIO)
+import Control.Monad.Trans (liftIO)
 import Data.Char (isAlpha)
 import Data.Monoid ((<>))
 import Data.Text (Text, pack)
@@ -23,3 +25,7 @@ randomCapitalLetters = getRandomRs ('A', 'Z')
 
 randomLetters :: IO String
 randomLetters = filter isAlpha <$> getRandomRs ('A', 'z')
+
+randomElem :: [a] -> IO (Maybe a)
+randomElem [] = return Nothing
+randomElem xs = randomRIO (0, length xs - 1) >>= return . Just . (xs !!)
