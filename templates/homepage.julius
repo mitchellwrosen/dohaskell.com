@@ -1,0 +1,4 @@
+$('.level3 .button').click(function() {
+    $(this).find('div').toggleClass('toggled');
+    $(this).parent().find('ul').toggleClass('hidden');
+});

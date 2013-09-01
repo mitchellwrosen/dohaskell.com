@@ -1,8 +1,14 @@
-<h1>_{MsgHello}
-
-<form method=post action=@{HomeR} enctype=#{formEnctype}}>
-   ^{formWidget}
-   <input type="submit" value="Capitalize">
-
-$maybe text <- submission
-   <h3>#{text}
+<h1> Welcome to DoHaskell!
+<div id=sidebar>
+    <ul class=level1>
+        <b> Modules
+        <ul class=level2>
+            $forall Module moduleName functions <- modules
+                <li class=level3>
+                    <a class="level3 button" href="javascript:void(0)">
+                        <span class=level3>#{moduleName}
+                        <div class=toggleIndicator>
+                    <ul class="hidden level3">
+                        $forall DoFunction functionName <- functions
+                            <li class=level4>
+                                <a href="/function/#{moduleName}/#{functionName}">#{functionName}

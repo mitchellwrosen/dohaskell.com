@@ -2,30 +2,27 @@
 module Handler.Home where
 
 import Import
+import Settings.StaticFiles
+
+data DoFunction = DoFunction String
+data Module = Module String [DoFunction]
 
 import Data.Text (toUpper)
 
 getHomeR :: Handler Html
 getHomeR = do
-    ((result, formWidget), formEnctype) <- runFormPost sampleForm
-
-    case result of
-        FormSuccess text -> do
-            submission <- liftIO $ handleSubmission (unTextarea text)
-            defaultLayout $ do
-                setTitle "Do Haskell"
-                $(widgetFile "homepage")
-        _ -> do
-            let submission = Nothing :: Maybe Textarea
-            defaultLayout $ do
-                setTitle "Do Haskell"
-                $(widgetFile "homepage")
+    defaultLayout $ do
+        let modules = [ Module "Prelude" [DoFunction "(&&)"]
+                      , Module "Data.List" [DoFunction "(||)"]
+                      , Module "Data.Maybe" [DoFunction "(==)"]
+                      ]
+        -- TODO(chebert): where to load, where to load?
+        addScriptRemote "http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"
+        setTitle "Welcome To DoHaskell!"
+        $(widgetFile "homepage")
 
 postHomeR :: Handler Html
 postHomeR = getHomeR
-
-sampleForm :: Form Textarea
-sampleForm = renderDivs $ areq textareaField "Enter some text" Nothing
 
 handleSubmission :: Text -> IO (Maybe Textarea)
 handleSubmission = return . Just . Textarea . toUpper
