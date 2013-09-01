@@ -2,13 +2,23 @@
 module Handler.Home where
 
 import Import
+
+import HaskFunction.Dao (getAllFunctionNamesFromModule)
+import HaskModule.Dao (getAllModuleNames)
 import Settings.StaticFiles
+
+import qualified Data.Map      as M
 
 data DoFunction = DoFunction String
 data Module = Module String [DoFunction]
 
+type ModuleMap = M.Map ModuleName [FunctionName]
+
 getHomeR :: Handler Html
 getHomeR = do
+    sidebarClass <- newIdent
+    moduleMap <- makeModuleMap
+
     defaultLayout $ do
         let modules = [ Module "Prelude" [DoFunction "(&&)"]
                       , Module "Data.List" [DoFunction "(||)"]
@@ -21,3 +31,9 @@ getHomeR = do
 
 postHomeR :: Handler Html
 postHomeR = getHomeR
+
+makeModuleMap :: Handler ModuleMap
+makeModuleMap = do
+    module_names <- getAllModuleNames
+    function_names <- mapM getAllFunctionNamesFromModule module_names
+    return $ M.fromList (zip module_names function_names)
