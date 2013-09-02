@@ -15,8 +15,12 @@ import Data.Tuple (swap)
 
 import qualified Data.Text as T
 
-argsStr :: LibFunction -> String
-argsStr = numArgsToArgsStr . length . drop 1 . libFunctionTypes
+argsStr :: Function -> String
+argsStr (LibF  func) = argsStr' $ libFunctionTypes  func
+argsStr (UserF func) = argsStr' $ userFunctionTypes func
+  where
+    argsStr' :: [Text] -> String
+    argsStr' = numArgsToArgsStr . length . drop 1
 
 -- 3 -> "arg1 arg2 arg3"
 numArgsToArgsStr :: Int -> String
@@ -25,8 +29,12 @@ numArgsToArgsStr n = unwords $ map (\(arg,num) -> arg ++ show num) tups
     tups :: [(String, Int)]
     tups = zip (repeat "arg") [1..n]
 
-typeSignature :: LibFunction -> String
-typeSignature = unpack . intercalate " -> " . libFunctionTypes
+typeSignature :: Function -> String
+typeSignature (LibF  func) = typeSignature' $ libFunctionTypes  func
+typeSignature (UserF func) = typeSignature' $ userFunctionTypes func
+  where
+    typeSignature' :: [Text] -> String
+    typeSignature' = unpack . intercalate " -> "
 
 -- | Alias a function from its real name. Most functions can simply be prefaced with an arbitrary string, e.g. "my_".
 -- Operators (functions that begin with '(' and consist of only symbols) must be transformed to a text-version, e.g.

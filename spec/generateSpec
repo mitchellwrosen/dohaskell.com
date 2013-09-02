@@ -46,5 +46,5 @@ for markdown in $(find . -name "*.md"); do
    generateHtml $markdown
 done
 
-#echo "`which $BROWSER` $HTML_DIR/$SPEC_HOME"
-#`which $BROWSER` $HTML_DIR/$SPEC_HOME
+echo "`which $BROWSER` $HTML_DIR/$SPEC_HOME"
+`which $BROWSER` $HTML_DIR/$SPEC_HOME
