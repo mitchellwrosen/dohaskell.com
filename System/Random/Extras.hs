@@ -7,7 +7,6 @@ import Prelude
 
 import Control.Applicative ((<$>))
 import Control.Monad.Random (getRandomRs, randomRIO)
-import Control.Monad.Trans (liftIO)
 import Data.Char (isAlpha)
 import Data.Monoid ((<>))
 import Data.Text (Text, pack)

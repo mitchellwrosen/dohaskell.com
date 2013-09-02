@@ -1,5 +1,6 @@
 <h1> Welcome to DoHaskell!
-<div id=sidebar>
+<p>#{show moduleMap}
+<div .#{sidebarClass}>
     <ul class=level1>
         <b> Modules
         <ul class=level2>

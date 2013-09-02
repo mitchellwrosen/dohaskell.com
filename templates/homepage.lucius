@@ -1,15 +1,15 @@
-#sidebar {
+.#{sidebarClass} {
     font-family: 'Open Sans', arial, sans-serif;
     font-size: 14px;
     width: 180px;
     float: left;
 }
 
-#sidebar ul {
+.#{sidebarClass} ul {
     list-style: none;
 }
 
-#sidebar li {
+.#{sidebarClass} li {
     line-height: 120%;
     margin: 0;
     padding: 8px 0;
@@ -45,7 +45,7 @@ a:hover {
     display: none;
 }
 
-#sidebar .toggleIndicator {
+.#{sidebarClass} .toggleIndicator {
     background: url(@{StaticR img_glyphs_png}) no-repeat 0 0;
     width: 20px;
     height: 20px;
@@ -55,6 +55,6 @@ a:hover {
     top: -6px;
 }
 
-#sidebar .toggled {
+.#{sidebarClass} .toggled {
     background-position: -310px -90px;
 }

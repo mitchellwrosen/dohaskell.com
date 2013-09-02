@@ -2,13 +2,10 @@
 
 module RunFunc where
 
+import Import
 import Prelude
 
-import Control.Applicative (pure, (<$>), (<*>), (<**>))
 import Control.Exception (throwIO)
-import Control.Monad.Trans (MonadIO, liftIO)
-import Data.Monoid ((<>))
-import Data.Text (Text)
 import System.Directory (removeFile)
 import System.IO.Error (catchIOError, isDoesNotExistError)
 import System.Plugins (LoadStatus(..), MakeStatus(..), Module(..), load_, make, unloadAll)
@@ -19,11 +16,9 @@ import Text.Hastache.Context (mkStrContext)
 import qualified Data.Text                  as T
 import qualified Data.ByteString.Lazy.Char8 as BSL
 
-import DohaskellFunc (DohaskellFunc, runDohaskellFunc)
-import FunctionUtils (argsStr, typeSignature)
-import Model (Function(..))
+import DohaskellFunc (DohaskellFunc)
+import HaskFunction.Utils (argsStr, typeSignature)
 import System.Random.Extras (randomModuleName)
-import Types (ModuleName)
 
 {-data Function = Function-}
     {-{ functionRealName :: Text-}
@@ -34,13 +29,13 @@ import Types (ModuleName)
     {-, functionModules :: [Text]-}
     {-}-}
 
-sampleFunc :: Function
-sampleFunc = Function
-    { functionName = "(&&)"
-    , functionUserName = "my_and"
-    , functionTypes = ["Bool", "Bool", "Bool"]
-    , functionDocumentation = "Boolean and"
-    , functionModule = "Prelude"
+sampleFunc :: HaskFunction
+sampleFunc = HaskFunction
+    { haskFunctionName = "(&&)"
+    , haskFunctionUserName = "my_and"
+    , haskFunctionTypes = ["Bool", "Bool", "Bool"]
+    , haskFunctionDocumentation = "Boolean and"
+    , haskFunctionModule = "Prelude"
     }
 
 userDefinition1 :: Text
@@ -52,16 +47,9 @@ userDefinition2 = "my_and _ _ = False"
 userDefinition3 :: Text
 userDefinition3 = "foo"
 
-{-debugPrintResult :: DohaskellFunc Result -> IO String-}
-{-debugPrintResult res =-}
-    {-runDohaskellFunc res >>= \val ->-}
-    {-case val of-}
-        {-Right result -> return $ "Right: " ++ show result-}
-        {-Left  err    -> return $ "Left: "  ++ err-}
-
 -----
 
-runHaskell :: Function -> Text -> DohaskellFunc Result
+runHaskell :: HaskFunction -> Text -> DohaskellFunc Result
 runHaskell function user_definition = do
     random_module_name <- liftIO $ randomModuleName 20
     (random_module, func) <- setup random_module_name
@@ -79,12 +67,12 @@ runHaskell function user_definition = do
         unloadAll modul
         cleanupModule (T.pack $ mname modul)
 
-makeUserFile :: ModuleName -> Function -> Text -> IO ()
+makeUserFile :: ModuleName -> HaskFunction -> Text -> IO ()
 makeUserFile module_name function user_definition =
     fillFunctionTemplate module_name function user_definition >>=
     BSL.writeFile (T.unpack $ hsFile module_name)
 
-fillFunctionTemplate :: MonadIO m => ModuleName -> Function -> Text -> m BSL.ByteString
+fillFunctionTemplate :: MonadIO m => ModuleName -> HaskFunction -> Text -> m BSL.ByteString
 fillFunctionTemplate module_name function user_definition =
     hastacheFile config "mustache-templates/func.mustache" (mkStrContext context)
   where
@@ -93,11 +81,11 @@ fillFunctionTemplate module_name function user_definition =
 
     context "args"            = MuVariable $ argsStr function
     context "module_name"     = MuVariable   module_name
-    context "module"          = MuVariable $ functionModule function
-    context "name"            = MuVariable $ functionName function
+    context "module"          = MuVariable $ haskFunctionModule function
+    context "name"            = MuVariable $ haskFunctionName function
     context "type_signature"  = MuVariable $ typeSignature function
     context "user_definition" = MuVariable   user_definition
-    context "user_name"       = MuVariable $ functionUserName function
+    context "user_name"       = MuVariable $ haskFunctionUserName function
 
 makeDohaskellModule :: ModuleName -> DohaskellFunc ()
 makeDohaskellModule module_name =
