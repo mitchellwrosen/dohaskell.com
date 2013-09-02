@@ -11,6 +11,23 @@ mechanize.log = Logger.new "mech.log"
 page = mechanize.get prelude_url
 functions = page/'.//p[@class="src"]'
 
+class Function
+   @@functions = []
+
+   def self.append(modle, constraints, name, userName, types, doc)
+      @@functions << Function.new(modle, constraints, name, userName, types, doc)
+   end
+
+   def initialize(modle, constraints, name, userName, types, doc)
+      @module = modle
+      @constraints = constraints
+      @name = name
+      @userName = userName
+      @types = types
+      @doc = doc
+   end
+end
+
 BannedMonads = [
    "IO",
    "IOError"
@@ -27,7 +44,7 @@ def banned? text
    not text.include? " :: "
 end
 
-def get_types text
+def get_types! text
    text.slice!(/(.*) :: (.* => )?/)
    text.lstrip!
 
@@ -63,13 +80,22 @@ functions.each do |function|
       name = /(.*) :: /.match(text).captures[0]
       constraints = /:: (.* => )/.match(text)
 
-      types = get_types text
-
-      puts "name: " + name
-      if constraints
-         puts "type constraints: " + constraints.captures[0]
+      if !constraints
+         constraints = ""
       end
-      print "type: "
-      pp types
+
+      types = get_types! text
+
+      doc = ""
+      sibling = function.next_sibling
+      if sibling and sibling['class'].include? "doc"
+         sibling.xpath('.//a').each do |anchor|
+            replacement = Nokogiri::XML::Node.new "div", anchor.parent
+            replacement.inner_html = anchor.inner_html
+            anchor.replace(replacement)
+         end
+         doc = sibling.inner_html
+      end
+      Function.append("Prelude", constraints, name, "my_" + name, types, doc)
    end
 end
