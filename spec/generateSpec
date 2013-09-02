@@ -4,16 +4,47 @@ BROWSER=google-chrome  # Browser to open spec in after generation.
 SPEC_HOME=home.html    # The root html file of the spec.
 HTML_DIR=.html         # The home of .html files.
 
+# Maps a markdown file onto an html file inside $HTML_DIR.
+# e.g. "./foo/bar/baz.md" -> "$HTML_DIR/foo/bar/baz.html"
+function htmlFilename {
+   out=$1
+   out=$HTML_DIR/${out#./}
+   out=${out%.md}.html
+   echo $out
+}
+
+# Generates html from markdown in $1. Unconditionally generates html if it
+# doesn't already exist. Otherwise, checks to see if the new html differs from
+# the old html by exactly ONE line (the timestamp). If so, the new html is
+# considered to be the same and the file is not overwritten.
+function generateHtml {
+   markdown=$1
+   html=$(htmlFilename $markdown)
+
+   if [ ! -f $html ]; then
+      echo "pandoc $markdown -o $html"
+      pandoc $markdown -o $html
+      echo Last updated: $(date) >> $html
+   else
+      pandoc $markdown -o $html.tmp
+      lines=$(diff -U 0 $html $html.tmp | grep -c ^@)
+
+      if (("$lines" > 1)); then
+         echo "pandoc $markdown -o $html"
+         mv $html.tmp $html
+         echo Last updated: $(date) >> $html
+      else
+         rm $html.tmp
+      fi
+   fi
+}
+
 hash pandoc 2>/dev/null || { echo >&2 "pandoc missing: cabal install pandoc"; exit 1; }
 mkdir -p $HTML_DIR
 
 for markdown in $(find . -name "*.md"); do
-   html=$HTML_DIR/${markdown#./}
-   html=${html%.md}.html
-   echo "pandoc $markdown -o $html"
-   pandoc $markdown -o $html
-   echo Last updated: $(date) >> $html
+   generateHtml $markdown
 done
 
-echo "`which $BROWSER` $HTML_DIR/$SPEC_HOME"
-`which $BROWSER` $HTML_DIR/$SPEC_HOME
+#echo "`which $BROWSER` $HTML_DIR/$SPEC_HOME"
+#`which $BROWSER` $HTML_DIR/$SPEC_HOME
