@@ -5,18 +5,17 @@ import Import
 import Data.Text (unpack)
 import Safe (readMay)
 
-import HaskFunction.Dao (insertFunction)
+import Function.Ydao (insertLibFunction)
 
 getAdminR :: Handler Html
 getAdminR = do
-    (addFunctionFormWidget, addFunctionFormEnctype) <- generateFormPost addFunctionForm
+    (addLibFunctionFormWidget, addLibFunctionFormEnctype) <- generateFormPost addLibFunctionForm
 
-    let sampleFunction = HaskFunction { 
-          haskFunctionModule        = "Prelude"
-        , haskFunctionName          = "fmap"
-        , haskFunctionUserName      = "my_fmap"
-        , haskFunctionTypes         = ["(a -> b)", "f a", "f b"]
-        , haskFunctionDocumentation = "...documentation..."
+    let sampleFunction = LibFunction {
+          libFunctionName          = "fmap"
+        , libFunctionTypes         = ["(a -> b)", "f a", "f b"]
+        , libFunctionDocumentation = "...documentation..."
+        , libFunctionModule        = "Prelude"
         }
 
     defaultLayout
@@ -25,8 +24,8 @@ getAdminR = do
 
             <div>Sample function:
             <div>#{show sampleFunction}
-            <form method=post action=@{AddFunctionR} enctype=#{addFunctionFormEnctype}>
-                ^{addFunctionFormWidget}
+            <form method=post action=@{AddFunctionR} enctype=#{addLibFunctionFormEnctype}>
+                ^{addLibFunctionFormWidget}
                 <input type=submit value="Submit">
 
             <form method=post action=@{ListModulesR}>
@@ -35,10 +34,10 @@ getAdminR = do
 
 postAddFunctionR :: Handler Html
 postAddFunctionR = do
-    ((formResult, _), _) <- runFormPost addFunctionForm
+    ((formResult, _), _) <- runFormPost addLibFunctionForm
     case formResult of
         FormSuccess function -> do
-            key <- insertFunction function
+            key <- insertLibFunction function
             setMessageRedirect (toHtml $ show key) AdminR
         _ -> setMessageRedirect (toHtml $ show formResult) AdminR
   where
@@ -50,11 +49,11 @@ postListModulesR = do
     setMessage $ toHtml ("Modules: TODO" :: Text)
     redirect AdminR
 
-addFunctionForm :: Form HaskFunction
-addFunctionForm = renderDivs $ areq haskFunctionField "Function (as 'show')" Nothing
+addLibFunctionForm :: Form LibFunction
+addLibFunctionForm = renderDivs $ areq libFunctionField "Function (as 'show')" Nothing
 
 readField :: (Monad m, RenderMessage (HandlerSite m) FormMessage, Read a, Show a) => Field m a
-readField = Field 
+readField = Field
     { fieldParse = parseHelper $ maybe (Left MsgValueRequired) Right . readMay . unpack
     , fieldView = \theId name attrs val isReq ->
         [whamlet|
@@ -64,5 +63,5 @@ readField = Field
     , fieldEnctype = UrlEncoded
     }
 
-haskFunctionField :: (Monad m, RenderMessage (HandlerSite m) FormMessage) => Field m HaskFunction
-haskFunctionField = readField
+libFunctionField :: (Monad m, RenderMessage (HandlerSite m) FormMessage) => Field m LibFunction
+libFunctionField = readField

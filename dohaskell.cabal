@@ -14,14 +14,17 @@ Flag library-only
 library
     exposed-modules: Application
                      Control.Applicative.Extras
+                     Data.Map.Extras
                      DohaskellFunc
                      Foundation
                      Handler.Home
                      Handler.Function
                      Handler.Admin
-                     HaskFunction.Dao
-                     HaskFunction.Utils
-                     HaskModule.Dao
+                     Function.Dao
+                     Function.Ydao
+                     Function.Utils
+                     Module.Dao
+                     Module.Ydao
                      Import
                      Model
                      RunFunc

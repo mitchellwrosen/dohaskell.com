@@ -2,7 +2,7 @@
 
 module RunFunc where
 
-import Import
+import Import hiding (Module)
 import Prelude
 
 import Control.Exception (throwIO)
@@ -17,7 +17,7 @@ import qualified Data.Text                  as T
 import qualified Data.ByteString.Lazy.Char8 as BSL
 
 import DohaskellFunc (DohaskellFunc)
-import HaskFunction.Utils (argsStr, typeSignature)
+import Function.Utils (argsStr, typeSignature, toUserName)
 import System.Random.Extras (randomModuleName)
 
 {-data Function = Function-}
@@ -29,13 +29,12 @@ import System.Random.Extras (randomModuleName)
     {-, functionModules :: [Text]-}
     {-}-}
 
-sampleFunc :: HaskFunction
-sampleFunc = HaskFunction
-    { haskFunctionName = "(&&)"
-    , haskFunctionUserName = "my_and"
-    , haskFunctionTypes = ["Bool", "Bool", "Bool"]
-    , haskFunctionDocumentation = "Boolean and"
-    , haskFunctionModule = "Prelude"
+sampleFunc :: LibFunction
+sampleFunc = LibFunction
+    { libFunctionName = "(&&)"
+    , libFunctionTypes = ["Bool", "Bool", "Bool"]
+    , libFunctionDocumentation = "Boolean and"
+    , libFunctionModule = "Prelude"
     }
 
 userDefinition1 :: Text
@@ -49,7 +48,7 @@ userDefinition3 = "foo"
 
 -----
 
-runHaskell :: HaskFunction -> Text -> DohaskellFunc Result
+runHaskell :: LibFunction -> Text -> DohaskellFunc Result
 runHaskell function user_definition = do
     random_module_name <- liftIO $ randomModuleName 20
     (random_module, func) <- setup random_module_name
@@ -67,12 +66,12 @@ runHaskell function user_definition = do
         unloadAll modul
         cleanupModule (T.pack $ mname modul)
 
-makeUserFile :: ModuleName -> HaskFunction -> Text -> IO ()
+makeUserFile :: ModuleName -> LibFunction -> Text -> IO ()
 makeUserFile module_name function user_definition =
     fillFunctionTemplate module_name function user_definition >>=
     BSL.writeFile (T.unpack $ hsFile module_name)
 
-fillFunctionTemplate :: MonadIO m => ModuleName -> HaskFunction -> Text -> m BSL.ByteString
+fillFunctionTemplate :: MonadIO m => ModuleName -> LibFunction -> Text -> m BSL.ByteString
 fillFunctionTemplate module_name function user_definition =
     hastacheFile config "mustache-templates/func.mustache" (mkStrContext context)
   where
@@ -81,11 +80,11 @@ fillFunctionTemplate module_name function user_definition =
 
     context "args"            = MuVariable $ argsStr function
     context "module_name"     = MuVariable   module_name
-    context "module"          = MuVariable $ haskFunctionModule function
-    context "name"            = MuVariable $ haskFunctionName function
+    context "module"          = MuVariable $ libFunctionModule function
+    context "name"            = MuVariable $ libFunctionName function
     context "type_signature"  = MuVariable $ typeSignature function
     context "user_definition" = MuVariable   user_definition
-    context "user_name"       = MuVariable $ haskFunctionUserName function
+    context "user_name"       = MuVariable $ toUserName $ libFunctionName function
 
 makeDohaskellModule :: ModuleName -> DohaskellFunc ()
 makeDohaskellModule module_name =

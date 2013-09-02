@@ -4,7 +4,7 @@
     <ul class=level1>
         <b> Modules
         <ul class=level2>
-            $forall Module moduleName functions <- modules
+            $forall DoModule moduleName functions <- modules
                 <li class=level3>
                     <a class="level3 button" href="javascript:void(0)">
                         <span class=level3>#{moduleName}

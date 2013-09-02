@@ -1,8 +1,8 @@
 #!/bin/bash
 
-BROWSER=chromium     # Browser to open spec in after generation.
-SPEC_HOME=home.html  # The root html file of the spec.
-HTML_DIR=.html       # The home of .html files.
+BROWSER=google-chrome  # Browser to open spec in after generation.
+SPEC_HOME=home.html    # The root html file of the spec.
+HTML_DIR=.html         # The home of .html files.
 
 hash pandoc 2>/dev/null || { echo >&2 "pandoc missing: cabal install pandoc"; exit 1; }
 mkdir -p $HTML_DIR
@@ -12,6 +12,7 @@ for markdown in $(find . -name "*.md"); do
    html=${html%.md}.html
    echo "pandoc $markdown -o $html"
    pandoc $markdown -o $html
+   echo Last updated: $(date) >> $html
 done
 
 echo "`which $BROWSER` $HTML_DIR/$SPEC_HOME"

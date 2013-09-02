@@ -1,9 +1,0 @@
-<h1 id="functions">Functions</h1>
-<p><em>dohaskell.com</em> will provide an interface for implementing Haskell functions, which are compiled and checked for correctness on the server. There are two different types of functions: <strong>library functions</strong> and <strong>user-defined functions</strong>.</p>
-<h2 id="library-functions">Library Functions</h2>
-<p>A <strong>library function</strong> exists in a standard library already installed on the server. Checking the user's implementation for correctness is thus feasible by comparing the output to the library version with QuickCheck. The functions must have different names (e.g. 'foldl' vs 'my_foldl'), which may be transparent to the user.</p>
-<h2 id="user-defined-functions">User-Defined Functions</h2>
-<p>A <strong>user-defined function</strong> is created and uploaded by a <em>dohaskell.com</em> <em>developer</em>. In contrast with a library function, a user-defined function does not exist in a standard library and thus does not belong to a specific module. In addition, it contains implementation.</p>
-<p>A user-defined function must also contain information relevant to checking it for correctness. This will exist as code supplied by the developer. The developer should be able to <em>easily</em> and <em>optionally</em> <strong>not</strong> have to write his/her own testing code, and instead opt to automatically use QuickCheck. This will auto-generate a test with a single property that compares the user implementation to the developer implementation, much like the library functions are tested.</p>
-<hr />
-<p><a href="home.html">Home</a></p>
