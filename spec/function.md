@@ -21,6 +21,13 @@ code supplied by the developer. The developer should be able to *easily* and *op
 own testing code, and instead opt to automatically use QuickCheck. This will auto-generate a test with a single property that
 compares the student implementation to the developer implementation, much like the library functions are tested.
 
+### *Technical aside*
+
+```LibFunction``` and ```UserFunction``` are separate database tables, but because they share so many
+attributes, you'll find the unification of the two types in ```Types.hs```: ```Function = LibF LibFunction | UserF
+UserFunction```, which makes it possible to write treat them like the same type when you want to, e.g. in
+```Function/Utils.hs```.
+
 ---
 
 [Home](home.html)

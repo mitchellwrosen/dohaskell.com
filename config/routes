@@ -9,3 +9,4 @@
 /admin AdminR GET
 /admin/addfunction AddFunctionR POST
 /admin/listmodules ListModulesR POST
+/admin/executor ExecutorR GET POST

@@ -16,4 +16,3 @@ import Settings.Development as Import
 import Settings.StaticFiles as Import
 import Types                as Import
 import Yesod                as Import hiding (Route (..))
-
