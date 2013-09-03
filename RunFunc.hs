@@ -78,13 +78,13 @@ fillFunctionTemplate module_name function user_definition =
     config :: MonadIO m => MuConfig m
     config = defaultConfig { muEscapeFunc = emptyEscape }
 
-    context "args"            = MuVariable $ argsStr function
+    context "args"            = MuVariable $ argsStr (LibF function)
     context "module_name"     = MuVariable   module_name
     context "module"          = MuVariable $ libFunctionModule function
     context "name"            = MuVariable $ libFunctionName function
-    context "type_signature"  = MuVariable $ typeSignature function
+    context "type_signature"  = MuVariable $ typeSignature (LibF function)
     context "user_definition" = MuVariable   user_definition
-    context "user_name"       = MuVariable $ toUserName $ libFunctionName function
+    context "user_name"       = MuVariable $ toUserName $ libFunctionName $ function
 
 makeDohaskellModule :: ModuleName -> DohaskellFunc ()
 makeDohaskellModule module_name =
