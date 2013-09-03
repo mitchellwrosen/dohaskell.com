@@ -14,6 +14,11 @@ functions = page/'.//p[@class="src"]'
 class Function
    @@functions = []
 
+   def self.input_all form
+      form['f2'] = @@functions[0].to_s
+      form.submit
+   end
+
    def self.append(modle, constraints, name, userName, types, doc)
       @@functions << Function.new(modle, constraints, name, userName, types, doc)
    end
@@ -22,9 +27,14 @@ class Function
       @module = modle
       @constraints = constraints
       @name = name
-      @userName = userName
       @types = types
       @doc = doc
+   end
+
+   def to_s
+      "LibFunction {libFunctionName = \"#{@name}\", libFunctionTypes=#{@types.pretty_inspect}, " +
+      "libFunctionDocumentation = \"#{@doc}\", libFunctionConstraints = #{@constraints.pretty_inspect}, " +
+      "libFunctionModule = \"#{@module}\""
    end
 end
 
@@ -76,12 +86,17 @@ functions.each do |function|
    text = function.inner_text().chomp "Source"
 
    if !(banned? text)
-
       name = /(.*) :: /.match(text).captures[0]
-      constraints = /:: (.* => )/.match(text)
+      constraints = /:: \(?(.*)\)? =>/.match(text)
 
       if !constraints
-         constraints = ""
+         constraints = []
+      else
+         constraints = constraints[1].split(',')
+         constraints.each do |c|
+            c.lstrip!
+            c.rstrip!
+         end
       end
 
       types = get_types! text
@@ -99,3 +114,7 @@ functions.each do |function|
       Function.append("Prelude", constraints, name, "my_" + name, types, doc)
    end
 end
+
+page = mechanize.get('http://localhost:3000/admin')
+form = page.forms.first
+Function.input_all form
