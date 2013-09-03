@@ -1,0 +1,11 @@
+$doctype 5
+<html>
+   <body>
+      <h1>Execute Haskell Code
+      <form method=post action=@{ExecutorR} enctype=#{enctype}>
+          ^{widget}
+          <input type=submit value="Execute">
+      $maybe result <- maybeResult
+         <div>Exit code: #{show $ resultExitCode result}
+         <div>Stdout: #{resultStdout result}
+         <div>Stderr: #{resultStderr result}

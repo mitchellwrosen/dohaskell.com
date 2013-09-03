@@ -1,6 +1,6 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module DohaskellFunc
+module DohaskellFunc {-# DEPRECATED "Use CodeExecutor instead" #-}
     ( DohaskellFunc
     , runDohaskellFunc
     ) where

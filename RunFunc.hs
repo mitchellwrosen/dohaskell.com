@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module RunFunc where
+module RunFunc {-# DEPRECATED "Use CodeExecutor instead" #-} where
 
 import Import hiding (Module)
 import Prelude
@@ -9,12 +9,12 @@ import Control.Exception (throwIO)
 import System.Directory (removeFile)
 import System.IO.Error (catchIOError, isDoesNotExistError)
 import System.Plugins (LoadStatus(..), MakeStatus(..), Module(..), load_, make, unloadAll)
-import Test.QuickCheck (Result)
 import Text.Hastache (MuConfig(..), MuType(..), defaultConfig, emptyEscape, hastacheFile)
 import Text.Hastache.Context (mkStrContext)
 
 import qualified Data.Text                  as T
 import qualified Data.ByteString.Lazy.Char8 as BSL
+import qualified Test.QuickCheck as QC
 
 import DohaskellFunc (DohaskellFunc)
 import Function.Utils (argsStr, typeSignature, toUserName)
@@ -48,14 +48,14 @@ userDefinition3 = "foo"
 
 -----
 
-runHaskell :: LibFunction -> Text -> DohaskellFunc Result
+runHaskell :: LibFunction -> Text -> DohaskellFunc QC.Result
 runHaskell function user_definition = do
     random_module_name <- liftIO $ randomModuleName 20
     (random_module, func) <- setup random_module_name
     liftIO (teardown random_module)
     liftIO func
   where
-    setup :: ModuleName -> DohaskellFunc (Module, IO Result)
+    setup :: ModuleName -> DohaskellFunc (Module, IO QC.Result)
     setup random_module_name = do
         liftIO $ makeUserFile random_module_name function user_definition
         makeDohaskellModule random_module_name
@@ -96,14 +96,14 @@ makeDohaskellModule module_name =
     doMakeModule :: IO MakeStatus
     doMakeModule = make (T.unpack $ hsFile module_name) []
 
-loadDohaskellModule :: ModuleName -> DohaskellFunc (Module, IO Result)
+loadDohaskellModule :: ModuleName -> DohaskellFunc (Module, IO QC.Result)
 loadDohaskellModule module_name =
     liftIO doLoadDohaskellModule >>= \val ->
     case val of
         LoadSuccess modul func -> return (modul, func)
         LoadFailure errs -> fail $ unlines errs
   where
-    doLoadDohaskellModule :: IO (LoadStatus (IO Result))
+    doLoadDohaskellModule :: IO (LoadStatus (IO QC.Result))
     doLoadDohaskellModule = load_ (T.unpack $ oFile module_name) [] "dohaskell"
 
 cleanupModule :: ModuleName -> IO ()
