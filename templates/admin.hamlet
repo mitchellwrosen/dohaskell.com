@@ -1,0 +1,11 @@
+$doctype 5
+<html>
+   <body>
+      <h3>Insert Library Function
+      <div>Sample function: #{show sample_func}
+      <form method=post action=@{InsertFunctionR} enctype=#{insert_lib_func_enctype}>
+          ^{insert_lib_func_widget}
+          <input type=submit value="Submit">
+
+      <form method=post action=@{ListModulesR}>
+          <input type=submit action=@{ListModulesR} value="List Modules">

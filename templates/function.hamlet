@@ -1,8 +1,16 @@
-<h1> #{moduleName}
-<h3> #{functionName}
-<br>
-<br>
-<h3> Give it a try!
-<form method=post enctype=#{enctype}>
-    ^{codeAreaWidget}
-    <input type=submit value="Test my Code">
+$doctype 5
+<html>
+   <body>
+      <h1> #{module_name}
+      <h3> #{function_name}
+      <br>
+      <br>
+      <h3> Give it a try!
+      <form method=post enctype=#{enctype}>
+         ^{widget}
+         <input type=submit value="Test my Code">
+
+         $maybe result <- maybeResult
+            <div>Exit code: #{show $ resultExitCode result}
+            <div>Stdout: #{resultStdout result}
+            <div>Stderr: #{resultStderr result}

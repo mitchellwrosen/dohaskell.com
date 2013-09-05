@@ -12,7 +12,8 @@ Email
 
 LibFunction
     name          Text
-    types         [Text]
+    typeSignature Text
+    numArgs       Int
     documentation Text
     module        Text
     UniqueLibFunction module name

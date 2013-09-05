@@ -2,7 +2,7 @@ module Import
     ( module Import
     ) where
 
-import Prelude as Import hiding (head, init, last, readFile, tail, writeFile)
+import Prelude as Import hiding (FilePath, head, init, last, readFile, tail, writeFile)
 
 import Control.Applicative        as Import (pure, (<$>), (<*>), (<**>))
 import Control.Applicative.Extras as Import ((<$$>))
