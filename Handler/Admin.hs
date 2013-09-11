@@ -9,32 +9,22 @@ import Function.Ydao (insertLibFunction)
 
 getAdminR :: Handler Html
 getAdminR = do
-    (addLibFunctionFormWidget, addLibFunctionFormEnctype) <- generateFormPost addLibFunctionForm
+    (insert_lib_func_widget, insert_lib_func_enctype) <- generateFormPost insertLibFunctionForm
 
-    let sampleFunction = LibFunction {
+    let sample_func = LibFunction {
           libFunctionName          = "fmap"
-        , libFunctionTypes         = ["(a -> b)", "f a", "f b"]
+        , libFunctionTypeSignature = "(a -> b) -> f a -> f b"
+        , libFunctionNumArgs       = 2
         , libFunctionDocumentation = "...documentation..."
         , libFunctionModule        = "Prelude"
         }
 
-    defaultLayout
-        [whamlet|
-            <h3>Add Function
+    defaultLayout $ do
+        $(widgetFile "admin")
 
-            <div>Sample function:
-            <div>#{show sampleFunction}
-            <form method=post action=@{AddFunctionR} enctype=#{addLibFunctionFormEnctype}>
-                ^{addLibFunctionFormWidget}
-                <input type=submit value="Submit">
-
-            <form method=post action=@{ListModulesR}>
-                <input type=submit action=@{ListModulesR} value="List Modules">
-        |]
-
-postAddFunctionR :: Handler Html
-postAddFunctionR = do
-    ((formResult, _), _) <- runFormPost addLibFunctionForm
+postInsertFunctionR :: Handler Html
+postInsertFunctionR = do
+    ((formResult, _), _) <- runFormPost insertLibFunctionForm
     case formResult of
         FormSuccess function -> do
             key <- insertLibFunction function
@@ -49,8 +39,8 @@ postListModulesR = do
     setMessage $ toHtml ("Modules: TODO" :: Text)
     redirect AdminR
 
-addLibFunctionForm :: Form LibFunction
-addLibFunctionForm = renderDivs $ areq libFunctionField "Function (as 'show')" Nothing
+insertLibFunctionForm :: Form LibFunction
+insertLibFunctionForm = renderDivs $ areq libFunctionField "Function (as 'show')" Nothing
 
 readField :: (Monad m, RenderMessage (HandlerSite m) FormMessage, Read a, Show a) => Field m a
 readField = Field

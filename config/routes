@@ -7,6 +7,6 @@
 / HomeR GET POST
 /function/#ModuleName/#FunctionName FunctionR GET POST
 /admin AdminR GET
-/admin/addfunction AddFunctionR POST
+/admin/addfunction InsertFunctionR POST
 /admin/listmodules ListModulesR POST
 /admin/executor ExecutorR GET POST

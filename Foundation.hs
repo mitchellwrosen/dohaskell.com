@@ -12,7 +12,6 @@ import Settings.StaticFiles
 import System.Log.FastLogger (Logger)
 import Text.Hamlet (hamletFile)
 import Text.Jasmine (minifym)
-import Types
 import Yesod
 import Yesod.Auth
 import Yesod.Auth.BrowserId

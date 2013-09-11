@@ -2,7 +2,7 @@ module Import
     ( module Import
     ) where
 
-import Prelude as Import hiding (head, init, last, readFile, tail, writeFile)
+import Prelude as Import hiding (FilePath, head, init, last, readFile, tail, writeFile)
 
 import Control.Applicative        as Import (pure, (<$>), (<*>), (<**>))
 import Control.Applicative.Extras as Import ((<$$>))
@@ -14,5 +14,4 @@ import Model                as Import
 import Settings             as Import
 import Settings.Development as Import
 import Settings.StaticFiles as Import
-import Types                as Import
 import Yesod                as Import hiding (Route (..))

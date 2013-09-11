@@ -1,0 +1,11 @@
+module Main where
+
+import Test.QuickCheck
+import Prelude (IO, (==))
+import {{module_name}} ({{name}})
+import qualified {{random_module_name}} as X
+
+prop {{args}} = {{name}} {{args}} == (X.{{stripped_name}}) {{args}}
+
+main :: IO ()
+main = quickCheck prop
