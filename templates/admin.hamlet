@@ -7,5 +7,11 @@ $doctype 5
           ^{insert_lib_func_widget}
           <input type=submit value="Submit">
 
+      <h3>Insert Module
+      <div>Sample module: #{show sample_module}
+      <form method=post action=@{InsertModuleR} enctype=#{insert_module_enctype}>
+          ^{insert_module_widget}
+          <input type=submit value="Submit">
+
       <form method=post action=@{ListModulesR}>
           <input type=submit action=@{ListModulesR} value="List Modules">

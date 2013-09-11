@@ -10,3 +10,4 @@
 /admin/addfunction InsertFunctionR POST
 /admin/listmodules ListModulesR POST
 /admin/executor ExecutorR GET POST
+/admin/addmodule InsertModuleR POST

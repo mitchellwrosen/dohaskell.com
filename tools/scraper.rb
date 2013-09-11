@@ -12,12 +12,17 @@ mechanize.log = Logger.new "mech.log"
 page = mechanize.get prelude_url
 functions = page/'.//p[@class="src"]'
 
+def escape_quotes text
+   text.gsub( '"', '\"')
+end
+
 class Function
    @@functions = []
 
    def self.input_all form
-      form['f2'] = @@functions[0].to_s
-      form.submit
+      puts @@functions[1].to_s
+      #form['f2'] = @@functions[0].to_s
+      #form.submit
    end
 
    def self.append(modle, name, type_signature, num_args, doc)
@@ -33,9 +38,9 @@ class Function
    end
 
    def to_s
-      "LibFunction {libFunctionName = \"#{@name}\", libFunctionTypeSignature=\"#{@type_signature}\", " +
-      "libFunctionDocumentation = \"#{@doc}\", libFunctionNumArgs=#{@num_args}, " +
-      "libFunctionModule=\"#{@module}\""
+      "LibFunction {libFunctionName = \"#{@name}\", libFunctionTypeSignature = \"#{@type_signature}\", " +
+      "libFunctionNumArgs = #{@num_args}, libFunctionDocumentation = \"#{escape_quotes @doc}\", " +
+      "libFunctionModule = \"#{@module}\"}"
    end
 end
 

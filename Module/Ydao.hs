@@ -1,6 +1,7 @@
 module Module.Ydao
     ( getAllModules
     , getAllModuleNames
+    , insertModule
     ) where
 
 import Import
@@ -12,3 +13,6 @@ getAllModules = runDB $ entityVal <$$> D.getAllModules
 
 getAllModuleNames :: Handler [ModuleName]
 getAllModuleNames = moduleName <$$> getAllModules
+
+insertModule :: Module -> Handler (Key Module)
+insertModule = runDB . insert

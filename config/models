@@ -28,3 +28,4 @@ UserFunction
 
 Module
    name Text
+   deriving Read Show
