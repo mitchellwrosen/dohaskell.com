@@ -4,12 +4,12 @@
     <ul class=level1>
         <b> Modules
         <ul class=level2>
-            $forall DoModule moduleName functions <- modules
+            $forall (moduleName, functionNames) <- M.assocs moduleMap
                 <li class=level3>
                     <a class="level3 button" href="javascript:void(0)">
                         <span class=level3>#{moduleName}
                         <div class=toggleIndicator>
                     <ul class="hidden level3">
-                        $forall DoFunction functionName <- functions
+                        $forall functionName <- functionNames
                             <li class=level4>
                                 <a href="/function/#{moduleName}/#{functionName}">#{functionName}

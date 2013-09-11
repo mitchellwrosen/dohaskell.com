@@ -20,11 +20,6 @@ getHomeR = do
     moduleMap <- makeModuleMap
 
     defaultLayout $ do
-        let modules = [ DoModule "Prelude" [DoFunction "(&&)"]
-                      , DoModule "Data.List" [DoFunction "(||)"]
-                      , DoModule "Data.Maybe" [DoFunction "(==)"]
-                      ]
-        -- TODO(chebert): where to load, where to load?
         addScriptRemote "http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"
         setTitle "Welcome To DoHaskell!"
         $(widgetFile "homepage")

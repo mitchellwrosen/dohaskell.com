@@ -1,3 +1,4 @@
+#!/usr/bin/ruby
 require 'rubygems'
 require 'mechanize'
 require 'logger'
@@ -19,22 +20,22 @@ class Function
       form.submit
    end
 
-   def self.append(modle, constraints, name, userName, types, doc)
-      @@functions << Function.new(modle, constraints, name, userName, types, doc)
+   def self.append(modle, name, type_signature, num_args, doc)
+      @@functions << Function.new(modle, name, type_signature, num_args, doc)
    end
 
-   def initialize(modle, constraints, name, userName, types, doc)
+   def initialize(modle, name, type_signature, num_args, doc)
       @module = modle
-      @constraints = constraints
       @name = name
-      @types = types
+      @type_signature = type_signature
+      @num_args = num_args
       @doc = doc
    end
 
    def to_s
-      "LibFunction {libFunctionName = \"#{@name}\", libFunctionTypes=#{@types.pretty_inspect}, " +
-      "libFunctionDocumentation = \"#{@doc}\", libFunctionConstraints = #{@constraints.pretty_inspect}, " +
-      "libFunctionModule = \"#{@module}\""
+      "LibFunction {libFunctionName = \"#{@name}\", libFunctionTypeSignature=\"#{@type_signature}\", " +
+      "libFunctionDocumentation = \"#{@doc}\", libFunctionNumArgs=#{@num_args}, " +
+      "libFunctionModule=\"#{@module}\""
    end
 end
 
@@ -87,19 +88,9 @@ functions.each do |function|
 
    if !(banned? text)
       name = /(.*) :: /.match(text).captures[0]
-      constraints = /:: \(?(.*)\)? =>/.match(text)
+      type_signature = /:: (.*)/.match(text).captures[0]
 
-      if !constraints
-         constraints = []
-      else
-         constraints = constraints[1].split(',')
-         constraints.each do |c|
-            c.lstrip!
-            c.rstrip!
-         end
-      end
-
-      types = get_types! text
+      num_args = (get_types! text).length
 
       doc = ""
       sibling = function.next_sibling
@@ -111,7 +102,7 @@ functions.each do |function|
          end
          doc = sibling.inner_html
       end
-      Function.append("Prelude", constraints, name, "my_" + name, types, doc)
+      Function.append("Prelude", name, type_signature, num_args, doc)
    end
 end
 
