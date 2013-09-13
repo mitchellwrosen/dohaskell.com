@@ -20,9 +20,10 @@ class Function
    @@functions = []
 
    def self.input_all form
-      puts @@functions[1].to_s
-      #form['f2'] = @@functions[0].to_s
-      #form.submit
+      @@functions.each do |function|
+         form['f2'] = function.to_s
+         form.submit
+      end
    end
 
    def self.append(modle, name, type_signature, num_args, doc)
