@@ -4,13 +4,8 @@ require 'mechanize'
 require 'logger'
 require 'pp'
 
-prelude_url = "http://www.haskell.org/ghc/docs/latest/html/libraries/base/Prelude.html"
-
-mechanize = Mechanize.new
-mechanize.log = Logger.new "mech.log"
-
-page = mechanize.get prelude_url
-functions = page/'.//p[@class="src"]'
+$mechanize = Mechanize.new
+$mechanize.log = Logger.new "mech.log"
 
 def escape_quotes text
    text.gsub( '"', '\"')
@@ -25,6 +20,13 @@ class Function
          form.submit
       end
    end
+
+   def self.puts_all
+      @@functions.each do |function|
+         puts function.to_s
+      end
+   end
+
 
    def self.append(modle, name, type_signature, num_args, doc)
       @@functions << Function.new(modle, name, type_signature, num_args, doc)
@@ -43,22 +45,6 @@ class Function
       "libFunctionNumArgs = #{@num_args}, libFunctionDocumentation = \"#{escape_quotes @doc}\", " +
       "libFunctionModule = \"#{@module}\"}"
    end
-end
-
-BannedMonads = [
-   "IO",
-   "IOError"
-];
-
-def banned? text
-
-   BannedMonads.each do |m|
-      if text.include? m
-         return true
-      end
-   end
-
-   not text.include? " :: "
 end
 
 def get_types! text
@@ -89,17 +75,17 @@ def get_types! text
    types << type
 end
 
-functions.each do |function|
-   text = function.inner_text().chomp "Source"
+def processFunctionHtml functionHtml, moduleName
+   text = functionHtml.inner_text().chomp "Source"
 
-   if !(banned? text)
+   if text.include? " :: "
       name = /(.*) :: /.match(text).captures[0]
       type_signature = /:: (.*)/.match(text).captures[0]
 
       num_args = (get_types! text).length
 
       doc = ""
-      sibling = function.next_sibling
+      sibling = functionHtml.next_sibling
       if sibling and sibling['class'].include? "doc"
          sibling.xpath('.//a').each do |anchor|
             replacement = Nokogiri::XML::Node.new "div", anchor.parent
@@ -108,10 +94,26 @@ functions.each do |function|
          end
          doc = sibling.inner_html
       end
-      Function.append("Prelude", name, type_signature, num_args, doc)
+
+      Function.append(moduleName, name, type_signature, num_args, doc)
    end
 end
 
-page = mechanize.get('http://localhost:3000/admin')
-form = page.forms.first
-Function.input_all form
+def readModules()
+   Hash[*File.read('modules').split(/\s/)]
+end
+
+def scrapeModule moduleName, moduleUrl
+   page = $mechanize.get moduleUrl
+   functionsHtml = page/'.//p[@class="src"]'
+   functionsHtml.each do |functionHtml|
+      processFunctionHtml functionHtml, moduleName
+   end
+end
+
+readModules().each do |moduleName, moduleUrl|
+   $stderr.puts "Scraping #{moduleName} (#{moduleUrl})..."
+   scrapeModule moduleName, moduleUrl
+end
+
+Function.puts_all
