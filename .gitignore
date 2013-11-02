@@ -8,3 +8,5 @@ config/client_session_key.aes
 yesod-devel/
 spec/.html
 tools/mech.log
+.cabal-sandbox
+cabal.sandbox.config
