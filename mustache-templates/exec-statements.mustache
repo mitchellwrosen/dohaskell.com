@@ -1,0 +1,21 @@
+{-# LANGUAGE DeriveDataTypeable, FlexibleContexts, GADTs, OverloadedStrings, TemplateHaskell, TypeFamilies #-}
+
+module Main where
+
+import Data.Text (Text)
+import Data.Typeable (Typeable)
+import Database.Persist.Quasi
+import Database.Persist.TH
+import Database.Persist.Sqlite
+
+share [mkPersist sqlOnlySettings, mkMigrate "migrateAll"]
+    $(persistFileWith lowerCaseSettings "{{modelsFile}}")
+
+main :: IO ()
+main = do
+    runSqlite "{{databaseFile}}" $
+        runMigration migrateAll
+{{#statements}}
+        {{statement}}
+{{/statements}}
+
